@@ -1,0 +1,28 @@
+version: '3.6'
+services:
+  eduroam_idp:
+    image: ericattou/eduroam_idp:3.4
+    restart: unless-stopped
+    container_name: eduroam_idp
+    depends_on:
+      - db
+    volumes: 
+       - ./radius/mods-enabled/sql:/etc/raddb/mods-enabled/sql
+       - ./radius/proxy.conf:/etc/raddb/proxy.conf
+       - ./radius/clients.conf:/etc/raddb/clients.conf
+       - ./radius/users:/etc/raddb/users
+    ports:
+       - "1812-1813:1812-1813/udp"
+  db:
+    image: mariadb:10.7.1
+    restart: unless-stopped
+    container_name: radius-db
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+    expose:
+    - 3306
+
+volumes:
+  radius:
+
+       

@@ -1,0 +1,33 @@
+version: '3.6'
+services:
+  eduroam_idp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ericattou/eduroam_idp:1.0
+    restart: unless-stopped
+    container_name: eduroam_idp
+    environment:
+       - DB_HOST=rber.eduid.africa
+       - DB_PORT=5432
+       - DB_USER=eduider
+       - DB_NAME=rber
+       - DB_DIALECT=postgresql
+       - DB_PASS=pass
+       - IDP_REALM=uac.bj
+    volumes: 
+    #- ./radius/sql:/opt/etc/raddb/mods-enabled/sql
+       - ./radius/eap.conf:/opt/etc/raddb/eap.conf
+       - ./radius/proxy.conf:/opt/etc/raddb/proxy.conf
+       - ./radius/clients.conf:/opt/etc/raddb/clients.conf
+       - ./radius/users:/opt/etc/raddb/users
+    entrypoint:
+       - /docker-entrypoint.sh
+    command:
+       - /opt/sbin/radiusd
+       - -X
+    ports:
+       - "1812-1813:1812-1813/udp"
+
+volumes:
+  radius:

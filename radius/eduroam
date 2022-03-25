@@ -1,0 +1,69 @@
+server eduroam {
+ 
+        listen {
+                type = "auth"
+                ipaddr = *
+                port = 0
+        }
+        listen {
+                type = "acct"
+                ipaddr = *
+                port = 0
+        }
+        listen {
+                type = "auth"
+                ipv6addr = ::
+                port = 0
+        }
+        listen {
+                type = "acct"
+                ipv6addr = ::
+                port = 0
+        }
+  
+        authorize {
+                # only use filter_username from version > 3.0.7 on
+                filter_username
+                update request {
+                        Operator-Name := "IDP_REALM"
+                        # the literal number "1" above is an important prefix! Do not change it!
+                }
+                # if you want detailed logging
+                auth_log
+                suffix
+                eap
+        }
+ 
+        authenticate {
+            eap
+        }
+ 
+        preacct {
+                suffix
+        }
+ 
+        accounting {
+        }
+ 
+        post-auth {
+                # if you want detailed logging
+                reply_log
+                Post-Auth-Type REJECT {
+                        reply_log
+                }
+        }
+ 
+        pre-proxy {
+                # if you want detailed logging
+                pre_proxy_log
+                if("%{Packet-Type}" != "Accounting-Request") {
+                        attr_filter.pre-proxy
+                }
+        }
+ 
+        post-proxy {
+                # if you want detailed logging
+                post_proxy_log
+                attr_filter.post-proxy
+        }
+}
